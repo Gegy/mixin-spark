@@ -28,12 +28,16 @@ import com.hrzn.spark.BootstrapConfig;
 import com.hrzn.spark.loader.TransformingClassLoader;
 import com.hrzn.spark.plugin.ISparkPlugin;
 import com.hrzn.spark.transformer.TransformerRoster;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.lang.reflect.Method;
 
 public class MixinBootstrapPlugin implements ISparkPlugin {
+    private static final Logger LOGGER = LogManager.getLogger("spark-mixin");
+
     public MixinBootstrapPlugin() {
         MixinBootstrap.init();
     }
@@ -63,8 +67,7 @@ public class MixinBootstrapPlugin implements ISparkPlugin {
             gotoPhase.setAccessible(true);
             gotoPhase.invoke(null, phase);
         } catch (Throwable t) {
-            // TODO
-            t.printStackTrace();
+            LOGGER.error("Failed to switch mixin phase", t);
         }
     }
 }

@@ -1,8 +1,9 @@
 plugins {
   id 'java'
+  id 'maven-publish'
 }
 
-group 'net.gegy1000'
+group 'com.hrznstudio'
 version '0.1.0-SNAPSHOT'
 archivesBaseName = project.name
 
@@ -28,5 +29,44 @@ jar {
   from configurations.embed.collect {
     exclude 'META-INF/MANIFEST.MF'
     it.isDirectory() ? it : zipTree(it)
+  }
+}
+
+task sourceJar(type: Jar, dependsOn: classes) {
+  classifier = "sources"
+  from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = "javadoc"
+  from javadoc.getDestinationDir()
+}
+
+artifacts {
+  archives sourceJar
+  archives javadocJar
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      groupId project.group
+      artifactId project.archivesBaseName
+      version project.version
+
+      from components.java
+
+      artifact sourceJar { classifier "sources" }
+      artifact javadocJar { classifier "javadoc" }
+    }
+  }
+  repositories {
+    maven {
+      credentials {
+        username project.mavenUsername ?: ""
+        password project.mavenPassword ?: ""
+      }
+      url project.mavenUrl ?: ""
+    }
   }
 }

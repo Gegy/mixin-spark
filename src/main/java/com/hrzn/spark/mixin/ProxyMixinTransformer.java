@@ -25,12 +25,16 @@
 package com.hrzn.spark.mixin;
 
 import com.hrzn.spark.transformer.IByteTransformer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.transformer.MixinTransformer;
 import org.spongepowered.asm.service.ILegacyClassTransformer;
 
 import java.lang.reflect.Constructor;
 
 public final class ProxyMixinTransformer implements IByteTransformer, ILegacyClassTransformer {
+    private static final Logger LOGGER = LogManager.getLogger("spark-mixin");
+
     private static final ILegacyClassTransformer TRANSFORMER = constructTransformer();
 
     @Override
@@ -59,8 +63,7 @@ public final class ProxyMixinTransformer implements IByteTransformer, ILegacyCla
             constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (Throwable t) {
-            // TODO
-            t.printStackTrace();
+            LOGGER.error("Failed to construct mixin transformer", t);
         }
         return new VoidLegacyTransformer();
     }

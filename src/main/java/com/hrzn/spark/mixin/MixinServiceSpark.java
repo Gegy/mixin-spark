@@ -62,7 +62,7 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
     public boolean isValid() {
         try {
             Class.forName("com.hrzn.spark.SparkLauncher");
-        } catch (Throwable ex) {
+        } catch (Throwable t) {
             return false;
         }
         return true;
