@@ -1,4 +1,4 @@
-package com.hrzn.spark.mixin;
+package com.hrznstudio.spark.mixin;
 
 import org.spongepowered.asm.service.ILegacyClassTransformer;
 

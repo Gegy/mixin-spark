@@ -22,11 +22,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.hrzn.spark.mixin;
+package com.hrznstudio.spark.mixin;
 
 import com.google.common.collect.ImmutableList;
-import com.hrzn.spark.SparkLauncher;
-import com.hrzn.spark.transformer.IByteTransformer;
+import com.hrznstudio.spark.SparkLauncher;
+import com.hrznstudio.spark.transformer.IByteTransformer;
 import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.lib.ClassReader;
 import org.spongepowered.asm.lib.tree.ClassNode;
@@ -61,7 +61,7 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
     @Override
     public boolean isValid() {
         try {
-            Class.forName("com.hrzn.spark.SparkLauncher");
+            Class.forName("com.hrznstudio.spark.SparkLauncher");
         } catch (Throwable t) {
             return false;
         }
@@ -70,7 +70,7 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
 
     @Override
     public void prepare() {
-        SparkLauncher.CLASS_LOADER.addLoadExemption("com.hrzn.spark.mixin.");
+        SparkLauncher.CLASS_LOADER.addLoadExemption("com.hrznstudio.spark.mixin.");
     }
 
     @Override

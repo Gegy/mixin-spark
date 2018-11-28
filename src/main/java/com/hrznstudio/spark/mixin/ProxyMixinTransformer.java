@@ -22,52 +22,49 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.hrzn.spark.mixin;
+package com.hrznstudio.spark.mixin;
 
-import com.hrzn.spark.BootstrapConfig;
-import com.hrzn.spark.loader.TransformingClassLoader;
-import com.hrzn.spark.plugin.ISparkPlugin;
-import com.hrzn.spark.transformer.TransformerRoster;
+import com.hrznstudio.spark.transformer.IByteTransformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.asm.launch.MixinBootstrap;
-import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.transformer.MixinTransformer;
+import org.spongepowered.asm.service.ILegacyClassTransformer;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
 
-public class MixinBootstrapPlugin implements ISparkPlugin {
+public final class ProxyMixinTransformer implements IByteTransformer, ILegacyClassTransformer {
     private static final Logger LOGGER = LogManager.getLogger("spark-mixin");
 
-    public MixinBootstrapPlugin() {
-        MixinBootstrap.init();
+    private static final ILegacyClassTransformer TRANSFORMER = constructTransformer();
+
+    @Override
+    public String getName() {
+        return this.getClass().getName();
     }
 
     @Override
-    public void acceptConfig(BootstrapConfig config) {
+    public boolean isDelegationExcluded() {
+        return true;
     }
 
     @Override
-    public void acceptClassloader(TransformingClassLoader classLoader) {
-        MixinBootstrap.getPlatform().inject();
+    public byte[] transform(String name, byte[] bytes) {
+        return ProxyMixinTransformer.TRANSFORMER.transformClassBytes(name, name, bytes);
     }
 
     @Override
-    public void volunteerTransformers(TransformerRoster roster) {
-        roster.volunteer(new ProxyMixinTransformer());
+    public byte[] transformClassBytes(String name, String transformedName, byte[] bytes) {
+        return ProxyMixinTransformer.TRANSFORMER.transformClassBytes(name, transformedName, bytes);
     }
 
-    @Override
-    public void launch(String[] strings) {
-        gotoPhase(MixinEnvironment.Phase.DEFAULT);
-    }
-
-    private static void gotoPhase(MixinEnvironment.Phase phase) {
+    private static ILegacyClassTransformer constructTransformer() {
         try {
-            Method gotoPhase = MixinEnvironment.class.getDeclaredMethod("gotoPhase", MixinEnvironment.Phase.class);
-            gotoPhase.setAccessible(true);
-            gotoPhase.invoke(null, phase);
+            Constructor<MixinTransformer> constructor = MixinTransformer.class.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor.newInstance();
         } catch (Throwable t) {
-            LOGGER.error("Failed to switch mixin phase", t);
+            LOGGER.error("Failed to construct mixin transformer", t);
         }
+        return new VoidLegacyTransformer();
     }
 }

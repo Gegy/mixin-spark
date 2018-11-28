@@ -22,34 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.hrzn.spark.mixin;
+package com.hrznstudio.spark.mixin;
 
-import com.hrzn.spark.SparkLauncher;
-import org.spongepowered.asm.service.IMixinServiceBootstrap;
+import com.hrznstudio.spark.SparkBlackboard;
+import org.spongepowered.asm.service.IGlobalPropertyService;
 
-public class MixinServiceSparkBootstrap implements IMixinServiceBootstrap {
-    private static final String SERVICE_PACKAGE = "org.spongepowered.asm.service.";
-
-    private static final String MIXIN_UTIL_PACKAGE = "org.spongepowered.asm.util.";
-    private static final String ASM_PACKAGE = "org.spongepowered.asm.lib.";
-    private static final String MIXIN_PACKAGE = "org.spongepowered.asm.mixin.";
-
+public class GlobalBlackboard implements IGlobalPropertyService {
     @Override
-    public String getName() {
-        return "JarSpark";
+    public final <T> T getProperty(String key) {
+        return SparkBlackboard.<T>key(key).get();
     }
 
     @Override
-    public String getServiceClassName() {
-        return "com.hrnz.spark.mixin.MixinServiceSpark";
+    public final void setProperty(String key, Object value) {
+        SparkBlackboard.key(key).set(value);
     }
 
     @Override
-    public void bootstrap() {
-        SparkLauncher.CLASS_LOADER.addLoadExemption(SERVICE_PACKAGE);
+    public final <T> T getProperty(String key, T defaultValue) {
+        T value = SparkBlackboard.<T>key(key).get();
+        return value != null ? value : defaultValue;
+    }
 
-        SparkLauncher.CLASS_LOADER.addLoadExemption(ASM_PACKAGE);
-        SparkLauncher.CLASS_LOADER.addLoadExemption(MIXIN_PACKAGE);
-        SparkLauncher.CLASS_LOADER.addLoadExemption(MIXIN_UTIL_PACKAGE);
+    @Override
+    public final String getPropertyString(String key, String defaultValue) {
+        Object value = SparkBlackboard.key(key).get();
+        return value != null ? value.toString() : defaultValue;
     }
 }

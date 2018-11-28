@@ -22,49 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.hrzn.spark.mixin;
+package com.hrznstudio.spark.mixin;
 
-import com.hrzn.spark.transformer.IByteTransformer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.spongepowered.asm.mixin.transformer.MixinTransformer;
+import com.hrznstudio.spark.transformer.IByteTransformer;
 import org.spongepowered.asm.service.ILegacyClassTransformer;
 
-import java.lang.reflect.Constructor;
+class WrapperLegacyTransformer implements ILegacyClassTransformer {
+    private final IByteTransformer transformer;
 
-public final class ProxyMixinTransformer implements IByteTransformer, ILegacyClassTransformer {
-    private static final Logger LOGGER = LogManager.getLogger("spark-mixin");
-
-    private static final ILegacyClassTransformer TRANSFORMER = constructTransformer();
+    WrapperLegacyTransformer(IByteTransformer transformer) {
+        this.transformer = transformer;
+    }
 
     @Override
     public String getName() {
-        return this.getClass().getName();
+        return this.transformer.getClass().getName();
     }
 
     @Override
     public boolean isDelegationExcluded() {
-        return true;
-    }
-
-    @Override
-    public byte[] transform(String name, byte[] bytes) {
-        return ProxyMixinTransformer.TRANSFORMER.transformClassBytes(name, name, bytes);
+        return false;
     }
 
     @Override
     public byte[] transformClassBytes(String name, String transformedName, byte[] bytes) {
-        return ProxyMixinTransformer.TRANSFORMER.transformClassBytes(name, transformedName, bytes);
-    }
-
-    private static ILegacyClassTransformer constructTransformer() {
-        try {
-            Constructor<MixinTransformer> constructor = MixinTransformer.class.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            return constructor.newInstance();
-        } catch (Throwable t) {
-            LOGGER.error("Failed to construct mixin transformer", t);
-        }
-        return new VoidLegacyTransformer();
+        return this.transformer.transform(name, bytes);
     }
 }
