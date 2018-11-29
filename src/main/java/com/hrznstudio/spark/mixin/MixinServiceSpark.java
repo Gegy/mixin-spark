@@ -124,7 +124,7 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
 
     @Override
     public void checkEnv(Object bootSource) {
-        if (bootSource.getClass().getClassLoader() != SparkLauncher.CLASS_LOADER) {
+        if (bootSource.getClass().getClassLoader() != SparkLauncher.class.getClassLoader()) {
             throw new MixinException("Attempted to init the mixin environment in the wrong classloader");
         }
     }
