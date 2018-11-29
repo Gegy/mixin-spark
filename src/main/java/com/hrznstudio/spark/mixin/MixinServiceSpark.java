@@ -27,6 +27,7 @@ package com.hrznstudio.spark.mixin;
 import com.google.common.collect.ImmutableList;
 import com.hrznstudio.spark.SparkLauncher;
 import com.hrznstudio.spark.transformer.IByteTransformer;
+import com.hrznstudio.spark.transformer.TransformerRoster;
 import org.apache.commons.io.IOUtils;
 import org.spongepowered.asm.lib.ClassReader;
 import org.spongepowered.asm.lib.tree.ClassNode;
@@ -162,7 +163,7 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
 
     @Override
     public Collection<ITransformer> getTransformers() {
-        Collection<IByteTransformer> transformers = SparkLauncher.ROSTER.getTransformers();
+        Collection<IByteTransformer> transformers = TransformerRoster.INSTANCE.getTransformers();
         List<ITransformer> wrapped = new ArrayList<>(transformers.size());
         for (IByteTransformer transformer : transformers) {
             if (transformer instanceof ITransformer) {
