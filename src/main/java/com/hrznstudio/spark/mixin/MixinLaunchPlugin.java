@@ -25,9 +25,9 @@
 package com.hrznstudio.spark.mixin;
 
 import com.hrznstudio.spark.BootstrapConfig;
+import com.hrznstudio.spark.SparkLauncher;
 import com.hrznstudio.spark.loader.TransformingClassLoader;
-import com.hrznstudio.spark.plugin.ISparkPlugin;
-import com.hrznstudio.spark.transformer.TransformerRoster;
+import com.hrznstudio.spark.plugin.ILaunchPlugin;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.launch.MixinBootstrap;
@@ -35,12 +35,8 @@ import org.spongepowered.asm.mixin.MixinEnvironment;
 
 import java.lang.reflect.Method;
 
-public class MixinBootstrapPlugin implements ISparkPlugin {
+public class MixinLaunchPlugin implements ILaunchPlugin {
     private static final Logger LOGGER = LogManager.getLogger("spark-mixin");
-
-    public MixinBootstrapPlugin() {
-        MixinBootstrap.init();
-    }
 
     @Override
     public void acceptConfig(BootstrapConfig config) {
@@ -48,12 +44,8 @@ public class MixinBootstrapPlugin implements ISparkPlugin {
 
     @Override
     public void acceptClassloader(TransformingClassLoader classLoader) {
+        SparkLauncher.CLASS_LOADER.addLoadExemption("com.hrznstudio.spark.mixin.");
         MixinBootstrap.getPlatform().inject();
-    }
-
-    @Override
-    public void volunteerTransformers(TransformerRoster roster) {
-        roster.volunteer(new ProxyMixinTransformer());
     }
 
     @Override

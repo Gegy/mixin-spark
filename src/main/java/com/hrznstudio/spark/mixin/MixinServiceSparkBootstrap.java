@@ -41,7 +41,7 @@ public class MixinServiceSparkBootstrap implements IMixinServiceBootstrap {
 
     @Override
     public String getServiceClassName() {
-        return "com.hrznstudio.spark.mixin.MixinServiceSpark";
+        return "com.hrznstudio.spark.mixin.MixinServiceLaunchSpark";
     }
 
     @Override

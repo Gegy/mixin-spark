@@ -24,29 +24,29 @@
  */
 package com.hrznstudio.spark.mixin;
 
-import com.hrznstudio.spark.SparkBlackboard;
+import com.hrznstudio.spark.patch.PatchBlackboard;
 import org.spongepowered.asm.service.IGlobalPropertyService;
 
 public class GlobalBlackboard implements IGlobalPropertyService {
     @Override
     public final <T> T getProperty(String key) {
-        return SparkBlackboard.<T>key(key).get();
+        return PatchBlackboard.<T>key(key).get();
     }
 
     @Override
     public final void setProperty(String key, Object value) {
-        SparkBlackboard.key(key).set(value);
+        PatchBlackboard.key(key).set(value);
     }
 
     @Override
     public final <T> T getProperty(String key, T defaultValue) {
-        T value = SparkBlackboard.<T>key(key).get();
+        T value = PatchBlackboard.<T>key(key).get();
         return value != null ? value : defaultValue;
     }
 
     @Override
     public final String getPropertyString(String key, String defaultValue) {
-        Object value = SparkBlackboard.key(key).get();
+        Object value = PatchBlackboard.key(key).get();
         return value != null ? value.toString() : defaultValue;
     }
 }

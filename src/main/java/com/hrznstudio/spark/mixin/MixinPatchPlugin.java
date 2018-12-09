@@ -25,27 +25,23 @@
 package com.hrznstudio.spark.mixin;
 
 import com.hrznstudio.spark.patch.IBytePatcher;
-import org.spongepowered.asm.service.ILegacyClassTransformer;
+import com.hrznstudio.spark.patch.IPatchPlugin;
+import org.spongepowered.asm.launch.MixinBootstrap;
 
-class WrapperLegacyTransformer implements ILegacyClassTransformer {
-    private final IBytePatcher transformer;
+import java.util.Collection;
+import java.util.Collections;
 
-    WrapperLegacyTransformer(IBytePatcher patcher) {
-        this.transformer = patcher;
+public class MixinPatchPlugin implements IPatchPlugin {
+    public MixinPatchPlugin() {
+        MixinBootstrap.init();
     }
 
     @Override
-    public String getName() {
-        return this.transformer.getClass().getName();
+    public void initialize() {
     }
 
     @Override
-    public boolean isDelegationExcluded() {
-        return false;
-    }
-
-    @Override
-    public byte[] transformClassBytes(String name, String transformedName, byte[] bytes) {
-        return this.transformer.apply(name, bytes);
+    public Collection<IBytePatcher> getPatchers() {
+        return Collections.singletonList(new ProxyMixinTransformer());
     }
 }

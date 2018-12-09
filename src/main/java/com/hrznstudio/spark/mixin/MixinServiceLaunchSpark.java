@@ -26,9 +26,8 @@ package com.hrznstudio.spark.mixin;
 
 import com.google.common.collect.ImmutableList;
 import com.hrznstudio.spark.SparkLauncher;
-import com.hrznstudio.spark.transformer.IByteTransformer;
-import com.hrznstudio.spark.transformer.TransformerRoster;
-import org.apache.commons.io.IOUtils;
+import com.hrznstudio.spark.patch.IBytePatcher;
+import com.hrznstudio.spark.patch.PatchBlackboard;
 import org.spongepowered.asm.lib.ClassReader;
 import org.spongepowered.asm.lib.tree.ClassNode;
 import org.spongepowered.asm.mixin.MixinEnvironment;
@@ -46,12 +45,11 @@ import org.spongepowered.asm.util.perf.Profiler.Section;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class MixinServiceSpark implements IMixinService, IClassProvider, IClassBytecodeProvider {
+public class MixinServiceLaunchSpark implements IMixinService, IClassProvider, IClassBytecodeProvider {
     private final ReEntranceLock lock = new ReEntranceLock(1);
 
     @Override
@@ -62,7 +60,7 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
     @Override
     public boolean isValid() {
         try {
-            Class.forName("com.hrznstudio.spark.SparkLauncher");
+            Class.forName("com.hrznstudio.spark.plugin.ILaunchPlugin");
         } catch (Throwable t) {
             return false;
         }
@@ -163,13 +161,13 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
 
     @Override
     public Collection<ITransformer> getTransformers() {
-        Collection<IByteTransformer> transformers = TransformerRoster.INSTANCE.getTransformers();
-        List<ITransformer> wrapped = new ArrayList<>(transformers.size());
-        for (IByteTransformer transformer : transformers) {
-            if (transformer instanceof ITransformer) {
-                wrapped.add((ITransformer) transformer);
+        Collection<IBytePatcher> patchers = PatchBlackboard.CONTEXT.get().getPatchers();
+        List<ITransformer> wrapped = new ArrayList<>(patchers.size());
+        for (IBytePatcher patcher : patchers) {
+            if (patcher instanceof ITransformer) {
+                wrapped.add((ITransformer) patcher);
             } else {
-                wrapped.add(new WrapperLegacyTransformer(transformer));
+                wrapped.add(new WrapperLegacyTransformer(patcher));
             }
         }
         return wrapped;
@@ -177,19 +175,12 @@ public class MixinServiceSpark implements IMixinService, IClassProvider, IClassB
 
     @Override
     public byte[] getClassBytes(String name, String transformedName) throws IOException {
-        byte[] bytes = SparkLauncher.CLASS_LOADER.readClassBytes(name);
+        byte[] bytes = PatchBlackboard.CONTEXT.get().readRawBytes(name);
         if (bytes != null) {
             return bytes;
         }
 
-        URLClassLoader appClassLoader = (URLClassLoader) SparkLauncher.class.getClassLoader();
-
-        String resourcePath = transformedName.replace('.', '/') + ".class";
-        try (InputStream classStream = appClassLoader.getResourceAsStream(resourcePath)) {
-            return IOUtils.toByteArray(classStream);
-        } catch (Exception ex) {
-            return null;
-        }
+        return PatchBlackboard.CONTEXT.get().readClasspathBytes(name);
     }
 
     @Override
